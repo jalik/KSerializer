@@ -21,44 +21,50 @@ Examples
 
 **Write to CSV**
 
-    // Create the serializer and the writer
-    final CsvSerializer csv = new CsvSerializer();
-    final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("fruits.csv")));
+```java
+// Create the serializer and the writer
+final CsvSerializer csv = new CsvSerializer();
+final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("fruits.csv")));
 
-    // Fill the list
-    final Set<Fruit> fruits = new HashSet<Fruit>();
-    fruits.add(new Fruit("Apple", "Red"));
-    fruits.add(new Fruit("Banana", "Yellow"));
-    fruits.add(new Fruit("Kiwi", "Green"));
+// Fill the list
+final Set<Fruit> fruits = new HashSet<Fruit>();
+fruits.add(new Fruit("Apple", "Red"));
+fruits.add(new Fruit("Banana", "Yellow"));
+fruits.add(new Fruit("Kiwi", "Green"));
 
-    // Serialize the objects
-    csv.write(fruits, writer);
+// Serialize the objects
+csv.write(fruits, writer);
 
-    // Close the writer
-    writer.close();
+// Close the writer
+writer.close();
+```
 
 
 **Write to JSON**
 
-    // Create the serializer and the writer
-    final JsonSerializer json = new JsonSerializer();
-    final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.json")));
+```java
+// Create the serializer and the writer
+final JsonSerializer json = new JsonSerializer();
+final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.json")));
 
-    // Serialize the object
-    json.write(new Person("Douglas", "Crockford"), writer);
+// Serialize the object
+json.write(new Person("Douglas", "Crockford"), writer);
 
-    // Close the writer
-    writer.close();
+// Close the writer
+writer.close();
+```
 
 
 **Write to XML**
 
-    // Create the serializer and the writer
-    final XmlSerializer xml = new XmlSerializer();
-    final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.xml")));
+```java
+// Create the serializer and the writer
+final XmlSerializer xml = new XmlSerializer();
+final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.xml")));
 
-    // Serialize the object
-    xml.write(new Person("Linus", "Torvalds"), writer);
+// Serialize the object
+xml.write(new Person("Linus", "Torvalds"), writer);
 
-    // Close the writer
-    writer.close();
+// Close the writer
+writer.close();
+```
