@@ -50,6 +50,10 @@ public class PrimitiveExample {
             8,
             16
     };
+    public String[] _pStringArray = {
+            new String("a"),
+            new String("b")
+    };
     public long _pLong = 2048L;
     public short _pShort = 12;
 }

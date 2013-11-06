@@ -144,6 +144,11 @@ public abstract class Serializer {
             for (final Object element : array) {
                 list.add(element);
             }
+        } else {
+            final Object[] array = (Object[]) object;
+            for (final Object element : array) {
+                list.add(element);
+            }
         }
         return list;
     }
@@ -221,6 +226,15 @@ public abstract class Serializer {
     }
 
     /**
+     * Sets the indentation character
+     *
+     * @param indentationCharacter
+     */
+    public final void setIndentationCharacter(final String indentationCharacter) {
+        this.indentationCharacter = indentationCharacter;
+    }
+
+    /**
      * Returns the indentation level
      *
      * @return String
@@ -257,15 +271,6 @@ public abstract class Serializer {
      * @return Object
      */
     public abstract <T> T read(Reader reader, Class<T> cls);
-
-    /**
-     * Sets the indentation character
-     *
-     * @param indentationCharacter
-     */
-    public final void setIndentationCharacter(final String indentationCharacter) {
-        this.indentationCharacter = indentationCharacter;
-    }
 
     /**
      * Converts the object to string and write it to the output

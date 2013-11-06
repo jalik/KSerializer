@@ -36,7 +36,7 @@ public class Main {
     public static void main(final String[] args) {
         try {
             // Define the output format
-            final String format = "xml";
+            final String format = "json";
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
             final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(new File("object." + format)));
 
