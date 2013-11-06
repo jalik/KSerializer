@@ -173,17 +173,24 @@ public class CsvSerializer extends Serializer {
 
     @Override
     public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        final Set<Field> fields = getFields(object.getClass());
-        final Iterator<Field> iterator = fields.iterator();
+        final Class<?> type = object.getClass();
 
-        while (iterator.hasNext()) {
-            final Field field = iterator.next();
+        if (type.isArray()) {
+            write(getCollectionFromObject(object), writer);
 
-            // Add the field value
-            writeValue(field.get(object), writer);
+        } else {
+            final Set<Field> fields = getFields(type);
+            final Iterator<Field> iterator = fields.iterator();
 
-            if (iterator.hasNext()) {
-                writer.append(valueSeparator);
+            while (iterator.hasNext()) {
+                final Field field = iterator.next();
+
+                // Add the field value
+                writeValue(field.get(object), writer);
+
+                if (iterator.hasNext()) {
+                    writer.append(valueSeparator);
+                }
             }
         }
 
@@ -200,7 +207,7 @@ public class CsvSerializer extends Serializer {
      * @param writer
      * @throws IOException
      */
-    protected void writeHeaders(final Object object, final Writer writer) throws IOException {
+    public void writeHeaders(final Object object, final Writer writer) throws IOException {
         final Set<Field> fields = getFields(object.getClass());
         final Iterator<Field> iterator = fields.iterator();
 

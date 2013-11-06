@@ -221,9 +221,7 @@ public class XmlSerializer extends Serializer {
         writer.append("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
 
         // Add the root node
-        writeNode(object, writer);
-
-        return writer;
+        return writeNode(object, writer);
     }
 
     /**
@@ -232,9 +230,10 @@ public class XmlSerializer extends Serializer {
      * @param name
      * @param value
      * @param writer
+     * @return Writer
      * @throws IOException
      */
-    protected void writeAttribute(final String name, final Object value, final Writer writer) throws IOException {
+    protected Writer writeAttribute(final String name, final Object value, final Writer writer) throws IOException {
         // Add the attribute name and open the value
         writer.append(" " + normalize(name) + "=\"");
 
@@ -245,6 +244,8 @@ public class XmlSerializer extends Serializer {
 
         // Close the attribute value
         writer.append("\"");
+
+        return writer;
     }
 
     /**
@@ -253,10 +254,11 @@ public class XmlSerializer extends Serializer {
      * @param nodeName
      * @param object
      * @param writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
      */
-    protected void writeCollection(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
+    protected Writer writeCollection(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
         writer.append("<" + nodeName + ">\n");
@@ -274,6 +276,8 @@ public class XmlSerializer extends Serializer {
         // Close the node
         writeIndentation(writer);
         writer.append("</" + nodeName + ">\n");
+
+        return writer;
     }
 
     /**
@@ -281,9 +285,10 @@ public class XmlSerializer extends Serializer {
      *
      * @param object
      * @param writer
+     * @return Writer
      * @throws IOException
      */
-    protected void writeComment(final Object object, final Writer writer) throws IOException {
+    protected Writer writeComment(final Object object, final Writer writer) throws IOException {
         // Open the comment
         writeIndentation(writer);
         writer.append("<!-- ");
@@ -293,6 +298,8 @@ public class XmlSerializer extends Serializer {
 
         // Close the comment
         writer.append(" -->\n");
+
+        return writer;
     }
 
     /**
@@ -301,10 +308,11 @@ public class XmlSerializer extends Serializer {
      * @param nodeName
      * @param object
      * @param writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
      */
-    protected void writeMap(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
+    protected Writer writeMap(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
         writer.append("<" + nodeName + ">\n");
@@ -324,6 +332,8 @@ public class XmlSerializer extends Serializer {
         // Close the node
         writeIndentation(writer);
         writer.append("</" + nodeName + ">\n");
+
+        return writer;
     }
 
     /**
@@ -331,12 +341,13 @@ public class XmlSerializer extends Serializer {
      *
      * @param object
      * @param writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
      */
-    protected void writeNode(final Object object, final Writer writer) throws IOException, IllegalAccessException {
+    protected Writer writeNode(final Object object, final Writer writer) throws IOException, IllegalAccessException {
         final String name = object.getClass().getSimpleName();
-        writeNode(name, object, writer);
+        return writeNode(name, object, writer);
     }
 
     /**
@@ -345,10 +356,11 @@ public class XmlSerializer extends Serializer {
      * @param name
      * @param object
      * @param writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
      */
-    protected void writeNode(final String name, final Object object, final Writer writer) throws IOException, IllegalAccessException {
+    protected Writer writeNode(final String name, final Object object, final Writer writer) throws IOException, IllegalAccessException {
         if (object != null) {
             final Class<?> cls = object.getClass();
             final String nodeName = normalize("") + normalize(name);
@@ -406,5 +418,6 @@ public class XmlSerializer extends Serializer {
                 writer.append("</" + nodeName + ">\n");
             }
         }
+        return writer;
     }
 }
