@@ -55,8 +55,8 @@ public class CsvSerializer extends Serializer {
     /**
      * Creates a CSV converter with custom params
      *
-     * @param delimiter
-     * @param separator
+     * @param delimiter the value delimiter
+     * @param separator the value separator
      */
     public CsvSerializer(final String delimiter, final String separator) {
         valueDelimiter = delimiter;
@@ -79,12 +79,16 @@ public class CsvSerializer extends Serializer {
     /**
      * Escapes all delimiters in the value
      *
-     * @param value
+     * @param value the value to escape
      * @return CharSequence
      */
     protected CharSequence escapeValue(String value) {
-        if (value != null && value.indexOf(valueDelimiter) > 0) {
-            value = value.replace(valueDelimiter, valueDelimiter + valueDelimiter);
+        if (value != null) {
+            if (value.indexOf(valueDelimiter) > 0) {
+                value = value.replace(valueDelimiter, valueDelimiter + valueDelimiter);
+            }
+            // Removes the line separator
+            value = value.replaceAll("\\r|\\n", "");
         }
         return value;
     }
@@ -125,7 +129,7 @@ public class CsvSerializer extends Serializer {
     /**
      * Sets the line separator
      *
-     * @param lineSeparator
+     * @param lineSeparator the line separator
      */
     public void setLineSeparator(final String lineSeparator) {
         this.lineSeparator = lineSeparator;
@@ -134,7 +138,7 @@ public class CsvSerializer extends Serializer {
     /**
      * Sets the value delimiter
      *
-     * @param valueDelimiter
+     * @param valueDelimiter the value delimiter
      */
     public void setValueDelimiter(final String valueDelimiter) {
         this.valueDelimiter = valueDelimiter;
@@ -143,7 +147,7 @@ public class CsvSerializer extends Serializer {
     /**
      * Sets the value separator
      *
-     * @param valueSeparator
+     * @param valueSeparator the value separator
      */
     public void setValueSeparator(final String valueSeparator) {
         this.valueSeparator = valueSeparator;
@@ -152,8 +156,8 @@ public class CsvSerializer extends Serializer {
     /**
      * Writes the collection
      *
-     * @param objects
-     * @param writer
+     * @param objects the objects to write
+     * @param writer  the writer
      * @throws IOException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
@@ -203,8 +207,8 @@ public class CsvSerializer extends Serializer {
     /**
      * Writes the column headers
      *
-     * @param object
-     * @param writer
+     * @param object the object to use to get headers
+     * @param writer the writer
      * @throws IOException
      */
     public void writeHeaders(final Object object, final Writer writer) throws IOException {
@@ -231,8 +235,8 @@ public class CsvSerializer extends Serializer {
     /**
      * Writes the value
      *
-     * @param value
-     * @param writer
+     * @param value  the value to write
+     * @param writer the writer
      * @throws IOException
      */
     protected void writeValue(final Object value, final Writer writer) throws IOException {

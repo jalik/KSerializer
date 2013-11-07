@@ -54,8 +54,8 @@ public class XmlSerializer extends Serializer {
     /**
      * Defines the field as an attribute
      *
-     * @param cls
-     * @param field
+     * @param cls   the target class
+     * @param field the target field
      */
     public void asAttribute(final Class<?> cls, final String field) {
         if (!attributes.containsKey(cls)) {
@@ -67,7 +67,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Converts XML reserved characters
      *
-     * @param value
+     * @param value the value to escape
      * @return CharSequence
      */
     protected CharSequence escapeAttribute(String value) {
@@ -75,6 +75,9 @@ public class XmlSerializer extends Serializer {
             value = value.replace("\"", "&quot;");
             value = value.replace("<", "&lt;");
             value = value.replace(">", "&gt;");
+
+            // Removes the line separator
+            value = value.replaceAll("\\r|\\n", "");
         }
         return value;
     }
@@ -82,7 +85,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Converts XML reserved characters
      *
-     * @param value
+     * @param value the value to escape
      * @return CharSequence
      */
     protected CharSequence escapeValue(String value) {
@@ -96,7 +99,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Returns the object attributes
      *
-     * @param cls
+     * @param cls the class to parse
      * @return Set
      */
     public Set<String> getAttributes(final Class<?> cls) {
@@ -115,7 +118,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Returns the node attributes
      *
-     * @param cls
+     * @param cls the class to parse
      * @return Set
      */
     protected Set<Field> getNodeAttributes(final Class<?> cls) {
@@ -134,7 +137,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Returns the node children
      *
-     * @param cls
+     * @param cls the class to parse
      * @return Set
      */
     protected Set<Field> getNodeChildren(final Class<?> cls) {
@@ -153,7 +156,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Returns the node name
      *
-     * @param cls
+     * @param cls the class
      * @return String
      */
     protected String getNodeName(final Class<?> cls) {
@@ -163,7 +166,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Returns the node namespace
      *
-     * @param cls
+     * @param cls the class
      * @return String
      */
     protected String getNodeNamespace(final Class<?> cls) {
@@ -173,7 +176,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Checks if the object is a value
      *
-     * @param object
+     * @param object the object to check
      * @return boolean
      */
     protected boolean isValue(final Object object) {
@@ -193,7 +196,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Normalizes the name
      *
-     * @param name
+     * @param name the value to normalize
      * @return String
      */
     public String normalize(final String name) {
@@ -209,7 +212,7 @@ public class XmlSerializer extends Serializer {
     /**
      * Sets the encoding
      *
-     * @param encoding
+     * @param encoding the encoding
      */
     public void setEncoding(final String encoding) {
         this.encoding = encoding;
@@ -218,7 +221,7 @@ public class XmlSerializer extends Serializer {
     @Override
     public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
         // Add the XML header
-        writer.append("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
+        writer.write("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
 
         // Add the root node
         return writeNode(object, writer);
@@ -227,15 +230,15 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the attribute
      *
-     * @param name
-     * @param value
-     * @param writer
+     * @param name   the name of the attribute
+     * @param value  the value of the attribute
+     * @param writer the writer
      * @return Writer
      * @throws IOException
      */
     protected Writer writeAttribute(final String name, final Object value, final Writer writer) throws IOException {
         // Add the attribute name and open the value
-        writer.append(" " + normalize(name) + "=\"");
+        writer.write(" " + normalize(name) + "=\"");
 
         if (value != null) {
             // Escape the value
@@ -251,9 +254,9 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the collection
      *
-     * @param nodeName
-     * @param object
-     * @param writer
+     * @param nodeName the name of the node
+     * @param object   the collection object
+     * @param writer   the writer
      * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
@@ -261,21 +264,20 @@ public class XmlSerializer extends Serializer {
     protected Writer writeCollection(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
-        writer.append("<" + nodeName + ">\n");
+        writer.write("<" + nodeName + ">\n");
 
         final Collection<?> collection = (Collection<?>) object;
-        final Iterator<?> iterator = collection.iterator();
 
-        while (iterator.hasNext()) {
+        for (Object obj : collection) {
             // Add the element
             increaseIndentation();
-            writeNode(iterator.next(), writer);
+            writeNode(obj, writer);
             decreaseIndentation();
         }
 
         // Close the node
         writeIndentation(writer);
-        writer.append("</" + nodeName + ">\n");
+        writer.write("</" + nodeName + ">\n");
 
         return writer;
     }
@@ -283,8 +285,8 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the comment
      *
-     * @param object
-     * @param writer
+     * @param object the object that is the comment
+     * @param writer the writer
      * @return Writer
      * @throws IOException
      */
@@ -305,9 +307,9 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the map
      *
-     * @param nodeName
-     * @param object
-     * @param writer
+     * @param nodeName the name of the node
+     * @param object   the object to write
+     * @param writer   the writer
      * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
@@ -315,14 +317,12 @@ public class XmlSerializer extends Serializer {
     protected Writer writeMap(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
-        writer.append("<" + nodeName + ">\n");
+        writer.write("<" + nodeName + ">\n");
 
         final Map<?, ?> map = (Map<?, ?>) object;
-        final Iterator<?> iterator = map.keySet().iterator();
 
-        while (iterator.hasNext()) {
+        for (Object key : map.keySet()) {
             // Add the element
-            final Object key = iterator.next();
             final Object element = map.get(key);
             increaseIndentation();
             writeNode(element, writer);
@@ -331,7 +331,7 @@ public class XmlSerializer extends Serializer {
 
         // Close the node
         writeIndentation(writer);
-        writer.append("</" + nodeName + ">\n");
+        writer.write("</" + nodeName + ">\n");
 
         return writer;
     }
@@ -339,8 +339,8 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the node
      *
-     * @param object
-     * @param writer
+     * @param object the object to write
+     * @param writer the writer
      * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
@@ -353,9 +353,9 @@ public class XmlSerializer extends Serializer {
     /**
      * Writes the node with the given name
      *
-     * @param name
-     * @param object
-     * @param writer
+     * @param name   the nae of the node
+     * @param object the object to write
+     * @param writer the writer
      * @return Writer
      * @throws IOException
      * @throws IllegalAccessException
@@ -379,15 +379,12 @@ public class XmlSerializer extends Serializer {
 
                 // Open the node
                 writeIndentation(writer);
-                writer.append("<" + nodeName);
+                writer.write("<" + nodeName);
 
                 // Get the attributes
                 final Set<Field> attributes = getNodeAttributes(cls);
-                final Iterator<Field> attrIterator = attributes.iterator();
 
-                while (attrIterator.hasNext()) {
-                    Field field = attrIterator.next();
-
+                for (Field field : attributes) {
                     // Add the attribute
                     writeAttribute(field.getName(), field.get(object), writer);
                 }
@@ -403,10 +400,8 @@ public class XmlSerializer extends Serializer {
 
                 } else {
                     writer.append("\n");
-                    final Iterator<Field> nodeIterator = children.iterator();
 
-                    while (nodeIterator.hasNext()) {
-                        final Field field = nodeIterator.next();
+                    for (Field field : children) {
                         increaseIndentation();
                         writeNode(field.getName(), field.get(object), writer);
                         decreaseIndentation();
@@ -415,7 +410,7 @@ public class XmlSerializer extends Serializer {
                 }
 
                 // Close the node
-                writer.append("</" + nodeName + ">\n");
+                writer.write("</" + nodeName + ">\n");
             }
         }
         return writer;

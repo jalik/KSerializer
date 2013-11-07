@@ -33,7 +33,7 @@ public class ObjectExample {
     public String _oNull;
     public PrimitiveExample _oObject = new PrimitiveExample();
     public Short _oShort = 8;
-    public String _oString = "My <\"String\">";
+    public String _oString = "My \r\n<\"String\"> to escape";
     public Set<Object> _oSet = new HashSet<Object>();
 
     public ObjectExample() {

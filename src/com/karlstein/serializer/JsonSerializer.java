@@ -55,7 +55,7 @@ public class JsonSerializer extends Serializer {
     /**
      * Escapes all quotes in the value
      *
-     * @param value
+     * @param value the value to escape
      * @return CharSequence
      */
     protected CharSequence escapeValue(String value) {
@@ -82,7 +82,7 @@ public class JsonSerializer extends Serializer {
             if (cls.equals(String.class) || cls.equals(Date.class) || cls.isEnum()
                     || cls.equals(Character.class) || cls.equals(Character.TYPE)) {
                 // Escape quotes when the object is a string
-                writer.append("\"" + escapeValue(String.valueOf(object)) + "\"");
+                writer.write("\"" + escapeValue(String.valueOf(object)) + "\"");
 
             } else if (cls.isPrimitive() || cls.equals(Boolean.class) || Number.class.isInstance(object)) {
                 writer.append(String.valueOf(object));
@@ -107,18 +107,18 @@ public class JsonSerializer extends Serializer {
     /**
      * Writes the collection
      *
-     * @param array
-     * @param writer
+     * @param collection the collection to write
+     * @param writer     the writer
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws IOException
      */
-    protected void writeCollection(final Collection<?> array, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
+    protected void writeCollection(final Collection<?> collection, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
         // Open the collection
         writer.append("[\n");
         increaseIndentation();
 
-        final Iterator<?> iterator = array.iterator();
+        final Iterator<?> iterator = collection.iterator();
 
         while (iterator.hasNext()) {
             final Object element = iterator.next();
@@ -142,7 +142,7 @@ public class JsonSerializer extends Serializer {
     /**
      * Writes the indentation character
      *
-     * @param writer
+     * @param writer the writer
      * @throws IOException
      */
     protected void writeIndentation(final Writer writer) throws IOException {
@@ -154,8 +154,8 @@ public class JsonSerializer extends Serializer {
     /**
      * Writes the map values
      *
-     * @param map
-     * @param writer
+     * @param map    the map to write
+     * @param writer the writer
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws IOException
@@ -171,7 +171,7 @@ public class JsonSerializer extends Serializer {
             // Add the field name
             final Object key = iterator.next();
             writeIndentation(writer);
-            writer.append("\"" + key + "\" : ");
+            writer.write("\"" + key + "\" : ");
 
             // Add the field value
             write(map.get(key), writer);
@@ -191,8 +191,8 @@ public class JsonSerializer extends Serializer {
     /**
      * Writes the object value
      *
-     * @param object
-     * @param writer
+     * @param object the object to write
+     * @param writer the writer
      * @throws IOException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
@@ -211,7 +211,7 @@ public class JsonSerializer extends Serializer {
 
             // Add the field name
             writeIndentation(writer);
-            writer.append("\"" + field.getName() + "\" : ");
+            writer.write("\"" + field.getName() + "\" : ");
 
             // Add the field value
             write(field.get(object), writer);
