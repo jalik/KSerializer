@@ -233,6 +233,16 @@ public class CsvSerializer extends Serializer {
     }
 
     /**
+     * Writes a new line
+     *
+     * @param writer
+     * @throws IOException
+     */
+    public void writeNewLine(final Writer writer) throws IOException {
+        writer.append(lineSeparator);
+    }
+
+    /**
      * Writes the value
      *
      * @param value  the value to write
