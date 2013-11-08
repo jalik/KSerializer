@@ -220,15 +220,70 @@ public class XmlSerializer extends Serializer {
 
     @Override
     public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        // Add the XML header
-        writer.write("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
-
-        // Add the root node
         return writeNode(object, writer);
     }
 
     /**
-     * Writes the attribute
+     * Writes a collection
+     *
+     * @param nodeName   the name of the node
+     * @param collection the collection object
+     * @param writer     the writer
+     * @return Writer
+     * @throws IOException
+     * @throws IllegalAccessException
+     */
+    public Writer write(final String nodeName, final Collection<?> collection, final Writer writer) throws IOException, IllegalAccessException {
+        // Open the node
+        writeIndentation(writer);
+        writer.write("<" + nodeName + ">\n");
+
+        for (final Object object : collection) {
+            // Add the element
+            increaseIndentation();
+            writeNode(object, writer);
+            decreaseIndentation();
+        }
+
+        // Close the node
+        writeIndentation(writer);
+        writer.write("</" + nodeName + ">\n");
+
+        return writer;
+    }
+
+    /**
+     * Writes a map
+     *
+     * @param nodeName the name of the node
+     * @param map      the object to write
+     * @param writer   the writer
+     * @return Writer
+     * @throws IOException
+     * @throws IllegalAccessException
+     */
+    public Writer write(final String nodeName, final Map<?, ?> map, final Writer writer) throws IOException, IllegalAccessException {
+        // Open the node
+        writeIndentation(writer);
+        writer.write("<" + nodeName + ">\n");
+
+        for (final Object key : map.keySet()) {
+            // Add the element
+            final Object element = map.get(key);
+            increaseIndentation();
+            writeNode(element, writer);
+            decreaseIndentation();
+        }
+
+        // Close the node
+        writeIndentation(writer);
+        writer.write("</" + nodeName + ">\n");
+
+        return writer;
+    }
+
+    /**
+     * Writes an attribute
      *
      * @param name   the name of the attribute
      * @param value  the value of the attribute
@@ -252,51 +307,20 @@ public class XmlSerializer extends Serializer {
     }
 
     /**
-     * Writes the collection
+     * Writes a comment
      *
-     * @param nodeName the name of the node
-     * @param object   the collection object
-     * @param writer   the writer
-     * @return Writer
-     * @throws IOException
-     * @throws IllegalAccessException
-     */
-    protected Writer writeCollection(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
-        // Open the node
-        writeIndentation(writer);
-        writer.write("<" + nodeName + ">\n");
-
-        final Collection<?> collection = (Collection<?>) object;
-
-        for (Object obj : collection) {
-            // Add the element
-            increaseIndentation();
-            writeNode(obj, writer);
-            decreaseIndentation();
-        }
-
-        // Close the node
-        writeIndentation(writer);
-        writer.write("</" + nodeName + ">\n");
-
-        return writer;
-    }
-
-    /**
-     * Writes the comment
-     *
-     * @param object the object that is the comment
-     * @param writer the writer
+     * @param comment the comment
+     * @param writer  the writer
      * @return Writer
      * @throws IOException
      */
-    protected Writer writeComment(final Object object, final Writer writer) throws IOException {
+    public Writer writeComment(final String comment, final Writer writer) throws IOException {
         // Open the comment
         writeIndentation(writer);
         writer.append("<!-- ");
 
         // Add the value
-        writer.append(String.valueOf(object));
+        writer.append(comment);
 
         // Close the comment
         writer.append(" -->\n");
@@ -305,39 +329,19 @@ public class XmlSerializer extends Serializer {
     }
 
     /**
-     * Writes the map
+     * Writes the header
      *
-     * @param nodeName the name of the node
-     * @param object   the object to write
-     * @param writer   the writer
+     * @param writer the writer
      * @return Writer
      * @throws IOException
-     * @throws IllegalAccessException
      */
-    protected Writer writeMap(final String nodeName, final Object object, final Writer writer) throws IOException, IllegalAccessException {
-        // Open the node
-        writeIndentation(writer);
-        writer.write("<" + nodeName + ">\n");
-
-        final Map<?, ?> map = (Map<?, ?>) object;
-
-        for (Object key : map.keySet()) {
-            // Add the element
-            final Object element = map.get(key);
-            increaseIndentation();
-            writeNode(element, writer);
-            decreaseIndentation();
-        }
-
-        // Close the node
-        writeIndentation(writer);
-        writer.write("</" + nodeName + ">\n");
-
+    public Writer writeHeader(final Writer writer) throws IOException {
+        writer.write("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
         return writer;
     }
 
     /**
-     * Writes the node
+     * Writes a node
      *
      * @param object the object to write
      * @param writer the writer
@@ -351,7 +355,7 @@ public class XmlSerializer extends Serializer {
     }
 
     /**
-     * Writes the node with the given name
+     * Writes a node with the given name
      *
      * @param name   the nae of the node
      * @param object the object to write
@@ -366,13 +370,13 @@ public class XmlSerializer extends Serializer {
             final String nodeName = normalize("") + normalize(name);
 
             if (List.class.isInstance(object) || Set.class.isInstance(object)) {
-                writeCollection(nodeName, object, writer);
+                write(nodeName, (Collection<?>) object, writer);
 
             } else if (Map.class.isInstance(object)) {
-                writeMap(nodeName, object, writer);
+                write(nodeName, (Map<?, ?>) object, writer);
 
             } else if (cls.isArray()) {
-                writeCollection(nodeName, getCollectionFromObject(object), writer);
+                write(nodeName, getCollectionFromObject(object), writer);
 
             } else {
                 // TODO get the namespace

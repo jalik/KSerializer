@@ -288,9 +288,10 @@ public abstract class Serializer {
      * @param writer
      * @throws IOException
      */
-    protected void writeIndentation(final Writer writer) throws IOException {
+    protected Writer writeIndentation(final Writer writer) throws IOException {
         for (int i = 0; i < indentationLevel; i++) {
             writer.write(indentationCharacter);
         }
+        return writer;
     }
 }

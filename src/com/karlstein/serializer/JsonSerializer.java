@@ -71,49 +71,17 @@ public class JsonSerializer extends Serializer {
         return null;
     }
 
-    @Override
-    public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        if (object == null) {
-            writer.append("null");
-
-        } else {
-            final Class<?> cls = object.getClass();
-
-            if (cls.equals(String.class) || cls.equals(Date.class) || cls.isEnum()
-                    || cls.equals(Character.class) || cls.equals(Character.TYPE)) {
-                // Escape quotes when the object is a string
-                writer.write("\"" + escapeValue(String.valueOf(object)) + "\"");
-
-            } else if (cls.isPrimitive() || cls.equals(Boolean.class) || Number.class.isInstance(object)) {
-                writer.append(String.valueOf(object));
-
-            } else if (List.class.isInstance(object) || Set.class.isInstance(object)) {
-                writeCollection((Collection<?>) object, writer);
-
-            } else if (Map.class.isInstance(object)) {
-                writeMap((Map<?, ?>) object, writer);
-
-            } else if (cls.isArray()) {
-                writeCollection(getCollectionFromObject(object), writer);
-
-            } else {
-                writeObject(object, writer);
-            }
-        }
-
-        return writer;
-    }
-
     /**
-     * Writes the collection
+     * Writes a collection
      *
      * @param collection the collection to write
      * @param writer     the writer
+     * @return Writer
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws IOException
      */
-    protected void writeCollection(final Collection<?> collection, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
+    public Writer write(final Collection<?> collection, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
         // Open the collection
         writer.append("[\n");
         increaseIndentation();
@@ -137,30 +105,21 @@ public class JsonSerializer extends Serializer {
         decreaseIndentation();
         writeIndentation(writer);
         writer.append("]");
+
+        return writer;
     }
 
     /**
-     * Writes the indentation character
-     *
-     * @param writer the writer
-     * @throws IOException
-     */
-    protected void writeIndentation(final Writer writer) throws IOException {
-        for (int i = 0; i < getIndentationLevel(); i++) {
-            writer.write(getIndentationCharacter());
-        }
-    }
-
-    /**
-     * Writes the map values
+     * Writes a map
      *
      * @param map    the map to write
      * @param writer the writer
+     * @return Writer
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws IOException
      */
-    protected void writeMap(final Map<?, ?> map, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
+    public Writer write(final Map<?, ?> map, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
         // Open the object
         writer.append("{\n");
         increaseIndentation();
@@ -186,18 +145,66 @@ public class JsonSerializer extends Serializer {
         decreaseIndentation();
         writeIndentation(writer);
         writer.append("}");
+
+        return writer;
+    }
+
+    @Override
+    public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
+        if (object == null) {
+            writer.append("null");
+
+        } else {
+            final Class<?> cls = object.getClass();
+
+            if (cls.equals(String.class) || cls.equals(Date.class) || cls.isEnum() || cls.equals(Character.class) || cls.equals(Character.TYPE)) {
+                // Escape quotes when the object is a string
+                writer.write("\"" + escapeValue(String.valueOf(object)) + "\"");
+
+            } else if (cls.isPrimitive() || cls.equals(Boolean.class) || Number.class.isInstance(object)) {
+                writer.append(String.valueOf(object));
+
+            } else if (List.class.isInstance(object) || Set.class.isInstance(object)) {
+                write((Collection<?>) object, writer);
+
+            } else if (Map.class.isInstance(object)) {
+                write((Map<?, ?>) object, writer);
+
+            } else if (cls.isArray()) {
+                write(getCollectionFromObject(object), writer);
+
+            } else {
+                writeObject(object, writer);
+            }
+        }
+        return writer;
     }
 
     /**
-     * Writes the object value
+     * Writes a indentation character
+     *
+     * @param writer the writer
+     * @return Writer
+     * @throws IOException
+     */
+    protected Writer writeIndentation(final Writer writer) throws IOException {
+        for (int i = 0; i < getIndentationLevel(); i++) {
+            writer.write(getIndentationCharacter());
+        }
+        return writer;
+    }
+
+    /**
+     * Writes an object
      *
      * @param object the object to write
      * @param writer the writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    protected void writeObject(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
+    protected Writer writeObject(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
         // Open the object
         writer.append("{\n");
         increaseIndentation();
@@ -226,5 +233,7 @@ public class JsonSerializer extends Serializer {
         decreaseIndentation();
         writeIndentation(writer);
         writer.append("}");
+
+        return writer;
     }
 }

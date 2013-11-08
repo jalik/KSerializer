@@ -158,21 +158,16 @@ public class CsvSerializer extends Serializer {
      *
      * @param objects the objects to write
      * @param writer  the writer
+     * @return Writer
      * @throws IOException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    public void write(final Collection<?> objects, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        boolean writeHeaders = true;
-
+    public Writer write(final Collection<?> objects, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
         for (final Object object : objects) {
-            if (writeHeaders) {
-                // Add the column headers
-                writeHeaders(object, writer);
-                writeHeaders = false;
-            }
             write(object, writer);
         }
+        return writer;
     }
 
     @Override
@@ -207,12 +202,13 @@ public class CsvSerializer extends Serializer {
     /**
      * Writes the column headers
      *
-     * @param object the object to use to get headers
+     * @param cls    the class to use to get headers
      * @param writer the writer
+     * @return Writer
      * @throws IOException
      */
-    public void writeHeaders(final Object object, final Writer writer) throws IOException {
-        final Set<Field> fields = getFields(object.getClass());
+    public Writer writeHeaders(final Class<?> cls, final Writer writer) throws IOException {
+        final Set<Field> fields = getFields(cls);
         final Iterator<Field> iterator = fields.iterator();
 
         while (iterator.hasNext()) {
@@ -230,26 +226,30 @@ public class CsvSerializer extends Serializer {
 
         // Add the line separator
         writer.append(lineSeparator);
+
+        return writer;
     }
 
     /**
      * Writes a new line
      *
      * @param writer
+     * @return Writer
      * @throws IOException
      */
-    public void writeNewLine(final Writer writer) throws IOException {
-        writer.append(lineSeparator);
+    public Writer writeNewLine(final Writer writer) throws IOException {
+        return writer.append(lineSeparator);
     }
 
     /**
-     * Writes the value
+     * Writes a value
      *
      * @param value  the value to write
      * @param writer the writer
+     * @return writer
      * @throws IOException
      */
-    protected void writeValue(final Object value, final Writer writer) throws IOException {
+    protected Writer writeValue(final Object value, final Writer writer) throws IOException {
         if (value != null) {
             final Class<?> cls = value.getClass();
 
@@ -261,5 +261,6 @@ public class CsvSerializer extends Serializer {
                 writer.append(escapeValue(String.valueOf(value)));
             }
         }
+        return writer;
     }
 }

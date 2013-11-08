@@ -32,7 +32,10 @@ fruits.add(new Fruit("Apple", "Red"));
 fruits.add(new Fruit("Banana", "Yellow"));
 fruits.add(new Fruit("Kiwi", "Green"));
 
-// Serialize the objects
+// Write the columns
+csv.writeHeaders(Fruit.class, writer);
+
+// Write the objects
 csv.write(fruits, writer);
 
 // Close the writer
@@ -62,7 +65,10 @@ writer.close();
 final XmlSerializer xml = new XmlSerializer();
 final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.xml")));
 
-// Serialize the object
+// Write the XML header
+xml.writeHeader(writer);
+
+// Write the object
 xml.write(new Person("Linus", "Torvalds"), writer);
 
 // Close the writer
