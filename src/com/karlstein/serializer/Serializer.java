@@ -18,7 +18,6 @@
 package com.karlstein.serializer;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -264,15 +263,6 @@ public abstract class Serializer {
     }
 
     /**
-     * Converts the input to an object of the specified class
-     *
-     * @param reader
-     * @param cls
-     * @return Object
-     */
-    public abstract <T> T read(Reader reader, Class<T> cls);
-
-    /**
      * Converts the object to string and write it to the output
      *
      * @param object
@@ -280,7 +270,7 @@ public abstract class Serializer {
      * @return Writer
      * @throws IOException
      */
-    public abstract Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException;
+    public abstract Writer write(Object object, Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException;
 
     /**
      * Writes the indentation character

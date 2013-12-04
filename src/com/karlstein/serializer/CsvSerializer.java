@@ -17,14 +17,12 @@
 
 package com.karlstein.serializer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is used to read/write CSV data
@@ -40,11 +38,11 @@ public class CsvSerializer extends Serializer {
     /**
      * The value delimiter
      */
-    private String valueDelimiter = "\"";
+    private String valueDelimiter = "";
     /**
      * The value separator
      */
-    private String valueSeparator = ",";
+    private String valueSeparator = "|";
 
     /**
      * Creates a CSV converter
@@ -120,10 +118,87 @@ public class CsvSerializer extends Serializer {
         return valueSeparator;
     }
 
-    @Override
-    public <T> T read(final Reader data, final Class<T> cls) {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Returns the objects from the reader
+     *
+     * @param data
+     * @param cls
+     * @param <T>
+     * @return Collection
+     * @throws IOException
+     */
+    public <T> Collection<T> read(final Reader data, final Class<T> cls) throws IOException {
+        final BufferedReader reader = new BufferedReader(data);
+        final Collection<T> objects = new ArrayList<T>(10);
+        String line = null;
+
+        do {
+            // Get the line
+            line = reader.readLine();
+
+            if (line != null) {
+                // Remove the first value delimiter
+                if (line.indexOf(valueDelimiter) == 0) {
+                    line = line.substring(valueDelimiter.length());
+                }
+
+                // Remove the last value delimiter
+                if (line.lastIndexOf(valueDelimiter) == line.length()) {
+                    line = line.substring(0, line.length() - valueDelimiter.length());
+                }
+
+                // Split the values
+                final String[] values = line.split(valueDelimiter + "\\" + valueSeparator + valueDelimiter);
+
+                try {
+                    final T object = read(cls, values);
+
+                    if (object != null) {
+                        objects.add(object);
+                    }
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                }
+            }
+        } while (line != null);
+
+        return objects;
+    }
+
+    /**
+     * Returns an instance of the class using the values
+     *
+     * @param cls
+     * @param values
+     * @param <T>
+     * @return Object
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    protected <T> T read(final Class<T> cls, final String[] values) throws IllegalAccessException, InstantiationException {
+        final Set<Field> fields = getFields(cls);
+        T object = null;
+        int i = -1;
+
+        if (values != null && values.length == fields.size()) {
+            object = cls.newInstance();
+
+            for (final Field field : fields) {
+                final Class<?> type = field.getType();
+                i += 1;
+
+                if (type.isPrimitive()) {
+                    field.set(object, values[i]);
+
+                } else if (type.equals(Date.class)) {
+//                    field.set(object, new Date(values[i]));
+                }
+            }
+        }
+        return object;
     }
 
     /**
@@ -233,7 +308,7 @@ public class CsvSerializer extends Serializer {
     /**
      * Writes a new line
      *
-     * @param writer
+     * @param writer the writer
      * @return Writer
      * @throws IOException
      */

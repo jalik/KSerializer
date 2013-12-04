@@ -18,7 +18,6 @@
 package com.karlstein.serializer;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -63,12 +62,6 @@ public class JsonSerializer extends Serializer {
             value = value.replace("\"", "\\\"");
         }
         return value;
-    }
-
-    @Override
-    public <T> T read(final Reader data, final Class<T> cls) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**

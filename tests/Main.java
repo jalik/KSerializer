@@ -19,12 +19,10 @@ import com.karlstein.serializer.CsvSerializer;
 import com.karlstein.serializer.JsonSerializer;
 import com.karlstein.serializer.XmlSerializer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.OutputStreamWriter;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class Main {
 
@@ -36,9 +34,11 @@ public class Main {
     public static void main(final String[] args) {
         try {
             // Define the output format
-            final String format = "xml";
+            final String format = "csv";
+            final File file = new File("object." + format);
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
-            final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(new File("object." + format)));
+            final BufferedReader fileReader = new BufferedReader(new FileReader(file));
+            final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
 
             writer.append("\n" + format + ":\n\n");
 
@@ -47,15 +47,20 @@ public class Main {
                 final CsvSerializer csv = new CsvSerializer();
 
                 // Prepare the list
-                final Set<ObjectExample> elements = new HashSet<ObjectExample>();
+                final List<ObjectExample> elements = new ArrayList<ObjectExample>();
                 elements.add(new ObjectExample());
                 elements.add(new ObjectExample());
                 elements.add(new ObjectExample());
+                elements.get(0)._oString = "CUSTOM VALUE";
 
-                // Serialize the objects
+                // Write the objects
                 csv.write(elements, writer);
                 csv.write(elements, fileWriter);
                 fileWriter.close();
+
+                // Read the objects
+                final Collection<ObjectExample> input = csv.read(fileReader, ObjectExample.class);
+                System.out.println("Read: " + input);
             }
 
             if (format.equals("json")) {

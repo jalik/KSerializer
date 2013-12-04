@@ -18,7 +18,6 @@
 package com.karlstein.serializer;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -201,12 +200,6 @@ public class XmlSerializer extends Serializer {
      */
     public String normalize(final String name) {
         return name.replaceAll("[^A-Za-z0-9]", "");
-    }
-
-    @Override
-    public <T> T read(Reader reader, Class<T> cls) {
-        // TODO implement read method
-        return null;
     }
 
     /**
