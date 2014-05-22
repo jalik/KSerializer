@@ -1,7 +1,7 @@
-Serializer (Beta)
+KSerializer (Beta)
 =================
 
-**NOTE: Only writing is supported for now !**
+**NOTE: Only writing/serializing is supported for now !**
 
 The purpose of this library is to give you a tool to quickly and easily read/write objects to various text formats in Java.
 You can do that without having to include numerous jars that are sometimes very heavy.

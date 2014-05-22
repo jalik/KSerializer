@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2013 Karl STEIN
+ * Copyright 2014 Karl STEIN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.karlstein.serializer;
+package com.karlstein.tools.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -27,7 +26,7 @@ import java.util.*;
  *
  * @author Karl STEIN
  */
-public class JsonSerializer extends Serializer {
+public class JsonSerializer extends KSerializer {
 
     /**
      * Creates a JSON converter

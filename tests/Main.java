@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2013 Karl STEIN
+ * Copyright 2014 Karl STEIN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +14,9 @@
  * limitations under the License.
  */
 
-import com.karlstein.serializer.CsvSerializer;
-import com.karlstein.serializer.JsonSerializer;
-import com.karlstein.serializer.XmlSerializer;
+import com.karlstein.tools.serializer.CsvSerializer;
+import com.karlstein.tools.serializer.JsonSerializer;
+import com.karlstein.tools.serializer.XmlSerializer;
 
 import java.io.*;
 import java.util.ArrayList;

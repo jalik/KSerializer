@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2013 Karl STEIN
+ * Copyright 2014 Karl STEIN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.karlstein.serializer;
+package com.karlstein.tools.serializer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +28,7 @@ import java.util.*;
  *
  * @author Karl STEIN
  */
-public class CsvSerializer extends Serializer {
+public class CsvSerializer extends KSerializer {
 
     /**
      * The line separator
@@ -38,11 +37,11 @@ public class CsvSerializer extends Serializer {
     /**
      * The value delimiter
      */
-    private String valueDelimiter = "";
+    private char valueDelimiter = '"';
     /**
      * The value separator
      */
-    private String valueSeparator = "|";
+    private char valueSeparator = ',';
 
     /**
      * Creates a CSV converter
@@ -56,7 +55,7 @@ public class CsvSerializer extends Serializer {
      * @param delimiter the value delimiter
      * @param separator the value separator
      */
-    public CsvSerializer(final String delimiter, final String separator) {
+    public CsvSerializer(final char delimiter, final char separator) {
         valueDelimiter = delimiter;
         valueSeparator = separator;
     }
@@ -82,11 +81,11 @@ public class CsvSerializer extends Serializer {
      */
     protected CharSequence escapeValue(String value) {
         if (value != null) {
-            if (value.indexOf(valueDelimiter) > 0) {
-                value = value.replace(valueDelimiter, valueDelimiter + valueDelimiter);
+            int pos;
+
+            while ((pos = value.indexOf(valueDelimiter)) >= 0) {
+                value = value.substring(0, pos) + valueDelimiter + value.substring(pos);
             }
-            // Removes the line separator
-            value = value.replaceAll("\\r|\\n", "");
         }
         return value;
     }
@@ -103,18 +102,18 @@ public class CsvSerializer extends Serializer {
     /**
      * Returns the value delimiter
      *
-     * @return String
+     * @return char
      */
-    public String getValueDelimiter() {
+    public char getValueDelimiter() {
         return valueDelimiter;
     }
 
     /**
      * Returns the value separator
      *
-     * @return String
+     * @return char
      */
-    public String getValueSeparator() {
+    public char getValueSeparator() {
         return valueSeparator;
     }
 
@@ -130,40 +129,17 @@ public class CsvSerializer extends Serializer {
     public <T> Collection<T> read(final Reader data, final Class<T> cls) throws IOException {
         final BufferedReader reader = new BufferedReader(data);
         final Collection<T> objects = new ArrayList<T>(10);
-        String line = null;
+        int charCode;
 
         do {
-            // Get the line
-            line = reader.readLine();
+            // Read the character
+            charCode = data.read();
 
-            if (line != null) {
-                // Remove the first value delimiter
-                if (line.indexOf(valueDelimiter) == 0) {
-                    line = line.substring(valueDelimiter.length());
-                }
+            if (charCode == valueDelimiter) {
 
-                // Remove the last value delimiter
-                if (line.lastIndexOf(valueDelimiter) == line.length()) {
-                    line = line.substring(0, line.length() - valueDelimiter.length());
-                }
-
-                // Split the values
-                final String[] values = line.split(valueDelimiter + "\\" + valueSeparator + valueDelimiter);
-
-                try {
-                    final T object = read(cls, values);
-
-                    if (object != null) {
-                        objects.add(object);
-                    }
-
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                }
             }
-        } while (line != null);
+
+        } while (charCode != -1);
 
         return objects;
     }
@@ -171,33 +147,17 @@ public class CsvSerializer extends Serializer {
     /**
      * Returns an instance of the class using the values
      *
+     * @param data
      * @param cls
-     * @param values
      * @param <T>
      * @return Object
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    protected <T> T read(final Class<T> cls, final String[] values) throws IllegalAccessException, InstantiationException {
+    protected <T> T read(final char[] data, final Class<T> cls) throws IllegalAccessException, InstantiationException {
         final Set<Field> fields = getFields(cls);
         T object = null;
-        int i = -1;
 
-        if (values != null && values.length == fields.size()) {
-            object = cls.newInstance();
-
-            for (final Field field : fields) {
-                final Class<?> type = field.getType();
-                i += 1;
-
-                if (type.isPrimitive()) {
-                    field.set(object, values[i]);
-
-                } else if (type.equals(Date.class)) {
-//                    field.set(object, new Date(values[i]));
-                }
-            }
-        }
         return object;
     }
 
@@ -215,7 +175,7 @@ public class CsvSerializer extends Serializer {
      *
      * @param valueDelimiter the value delimiter
      */
-    public void setValueDelimiter(final String valueDelimiter) {
+    public void setValueDelimiter(final char valueDelimiter) {
         this.valueDelimiter = valueDelimiter;
     }
 
@@ -224,7 +184,7 @@ public class CsvSerializer extends Serializer {
      *
      * @param valueSeparator the value separator
      */
-    public void setValueSeparator(final String valueSeparator) {
+    public void setValueSeparator(final char valueSeparator) {
         this.valueSeparator = valueSeparator;
     }
 

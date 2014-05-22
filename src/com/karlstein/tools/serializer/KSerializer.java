@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2013 Karl STEIN
+ * Copyright 2014 Karl STEIN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.karlstein.serializer;
+package com.karlstein.tools.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -28,7 +27,7 @@ import java.util.*;
  *
  * @author Karl STEIN
  */
-public abstract class Serializer {
+public abstract class KSerializer {
 
     /**
      * The excluded fields
@@ -50,7 +49,7 @@ public abstract class Serializer {
     /**
      * Default constructor
      */
-    public Serializer() {
+    public KSerializer() {
     }
 
     /**
@@ -58,7 +57,7 @@ public abstract class Serializer {
      *
      * @param indentationCharacter
      */
-    public Serializer(final String indentationCharacter) {
+    public KSerializer(final String indentationCharacter) {
         this.indentationCharacter = indentationCharacter;
     }
 
@@ -225,15 +224,6 @@ public abstract class Serializer {
     }
 
     /**
-     * Sets the indentation character
-     *
-     * @param indentationCharacter
-     */
-    public final void setIndentationCharacter(final String indentationCharacter) {
-        this.indentationCharacter = indentationCharacter;
-    }
-
-    /**
      * Returns the indentation level
      *
      * @return String
@@ -260,6 +250,15 @@ public abstract class Serializer {
      */
     protected final void increaseIndentation() {
         indentationLevel++;
+    }
+
+    /**
+     * Sets the indentation character
+     *
+     * @param indentationCharacter
+     */
+    public final void setIndentationCharacter(final String indentationCharacter) {
+        this.indentationCharacter = indentationCharacter;
     }
 
     /**
