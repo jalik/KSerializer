@@ -75,7 +75,8 @@ public class JsonSerializer extends KSerializer {
      */
     public Writer write(final Collection<?> collection, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
         // Open the collection
-        writer.append("[\n");
+        writer.append('[');
+        writeLineFeed(writer);
         increaseIndentation();
 
         final Iterator<?> iterator = collection.iterator();
@@ -90,13 +91,13 @@ public class JsonSerializer extends KSerializer {
             if (iterator.hasNext()) {
                 writer.append(",");
             }
-            writer.append("\n");
+            writeLineFeed(writer);
         }
 
         // Close the collection
         decreaseIndentation();
         writeIndentation(writer);
-        writer.append("]");
+        writer.append(']');
 
         return writer;
     }
@@ -113,7 +114,8 @@ public class JsonSerializer extends KSerializer {
      */
     public Writer write(final Map<?, ?> map, final Writer writer) throws IllegalArgumentException, IllegalAccessException, IOException {
         // Open the object
-        writer.append("{\n");
+        writer.append('{');
+        writeLineFeed(writer);
         increaseIndentation();
 
         final Iterator<?> iterator = map.keySet().iterator();
@@ -122,7 +124,10 @@ public class JsonSerializer extends KSerializer {
             // Add the field name
             final Object key = iterator.next();
             writeIndentation(writer);
-            writer.write("\"" + key + "\" : ");
+            writer.write("\"" + key + "\"");
+            writeSpace(writer);
+            writer.write(':');
+            writeSpace(writer);
 
             // Add the field value
             write(map.get(key), writer);
@@ -130,15 +135,20 @@ public class JsonSerializer extends KSerializer {
             if (iterator.hasNext()) {
                 writer.append(',');
             }
-            writer.append('\n');
+            writeLineFeed(writer);
         }
 
         // Close the object
         decreaseIndentation();
         writeIndentation(writer);
-        writer.append("}");
+        writer.append('}');
 
         return writer;
+    }
+
+    @Override
+    protected Writer writeLineFeed(Writer writer) throws IOException {
+        return compressOutput ? writer : super.writeLineFeed(writer);
     }
 
     @Override
@@ -173,20 +183,6 @@ public class JsonSerializer extends KSerializer {
     }
 
     /**
-     * Writes a indentation character
-     *
-     * @param writer the writer
-     * @return Writer
-     * @throws IOException
-     */
-    protected Writer writeIndentation(final Writer writer) throws IOException {
-        for (int i = 0; i < getIndentationLevel(); i++) {
-            writer.write(getIndentationCharacter());
-        }
-        return writer;
-    }
-
-    /**
      * Writes an object
      *
      * @param object the object to write
@@ -198,7 +194,8 @@ public class JsonSerializer extends KSerializer {
      */
     protected Writer writeObject(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
         // Open the object
-        writer.append("{\n");
+        writer.append('{');
+        writeLineFeed(writer);
         increaseIndentation();
 
         // Get the object fields
@@ -210,7 +207,10 @@ public class JsonSerializer extends KSerializer {
 
             // Add the field name
             writeIndentation(writer);
-            writer.write("\"" + field.getName() + "\" : ");
+            writer.write("\"" + field.getName() + "\"");
+            writeSpace(writer);
+            writer.write(':');
+            writeSpace(writer);
 
             // Add the field value
             write(field.get(object), writer);
@@ -218,14 +218,19 @@ public class JsonSerializer extends KSerializer {
             if (iterator.hasNext()) {
                 writer.append(',');
             }
-            writer.append('\n');
+            writeLineFeed(writer);
         }
 
         // Close the object
         decreaseIndentation();
         writeIndentation(writer);
-        writer.append("}");
+        writer.append('}');
 
         return writer;
+    }
+
+    @Override
+    protected Writer writeSpace(Writer writer) throws IOException {
+        return compressOutput ? writer : super.writeSpace(writer);
     }
 }

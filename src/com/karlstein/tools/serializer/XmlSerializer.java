@@ -228,7 +228,8 @@ public class XmlSerializer extends KSerializer {
     public Writer write(final String nodeName, final Collection<?> collection, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
-        writer.write("<" + nodeName + ">\n");
+        writer.write("<" + nodeName + ">");
+        writeLineFeed(writer);
 
         for (final Object object : collection) {
             // Add the element
@@ -239,7 +240,8 @@ public class XmlSerializer extends KSerializer {
 
         // Close the node
         writeIndentation(writer);
-        writer.write("</" + nodeName + ">\n");
+        writer.write("</" + nodeName + ">");
+        writeLineFeed(writer);
 
         return writer;
     }
@@ -257,7 +259,8 @@ public class XmlSerializer extends KSerializer {
     public Writer write(final String nodeName, final Map<?, ?> map, final Writer writer) throws IOException, IllegalAccessException {
         // Open the node
         writeIndentation(writer);
-        writer.write("<" + nodeName + ">\n");
+        writer.write("<" + nodeName + ">");
+        writeLineFeed(writer);
 
         for (final Object key : map.keySet()) {
             // Add the element
@@ -269,7 +272,8 @@ public class XmlSerializer extends KSerializer {
 
         // Close the node
         writeIndentation(writer);
-        writer.write("</" + nodeName + ">\n");
+        writer.write("</" + nodeName + ">");
+        writeLineFeed(writer);
 
         return writer;
     }
@@ -315,7 +319,8 @@ public class XmlSerializer extends KSerializer {
         writer.append(comment);
 
         // Close the comment
-        writer.append(" -->\n");
+        writer.append(" -->");
+        writeLineFeed(writer);
 
         return writer;
     }
@@ -330,6 +335,11 @@ public class XmlSerializer extends KSerializer {
     public Writer writeHeader(final Writer writer) throws IOException {
         writer.write("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
         return writer;
+    }
+
+    @Override
+    protected Writer writeLineFeed(Writer writer) throws IOException {
+        return compressOutput ? writer : super.writeLineFeed(writer);
     }
 
     /**
@@ -395,7 +405,7 @@ public class XmlSerializer extends KSerializer {
                     writer.append(escapeValue(String.valueOf(object)));
 
                 } else {
-                    writer.append("\n");
+                    writeLineFeed(writer);
 
                     for (Field field : children) {
                         increaseIndentation();
@@ -406,7 +416,8 @@ public class XmlSerializer extends KSerializer {
                 }
 
                 // Close the node
-                writer.write("</" + nodeName + ">\n");
+                writer.write("</" + nodeName + ">");
+                writeLineFeed(writer);
             }
         }
         return writer;

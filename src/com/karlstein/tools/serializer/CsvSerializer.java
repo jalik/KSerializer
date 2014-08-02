@@ -29,11 +29,6 @@ import java.util.*;
  * @author Karl STEIN
  */
 public class CsvSerializer extends KSerializer {
-
-    /**
-     * The line separator
-     */
-    private String lineSeparator = System.getProperty("line.separator");
     /**
      * The value delimiter
      */
@@ -88,15 +83,6 @@ public class CsvSerializer extends KSerializer {
             }
         }
         return value;
-    }
-
-    /**
-     * Returns the line separator
-     *
-     * @return String
-     */
-    public String getLineSeparator() {
-        return lineSeparator;
     }
 
     /**
@@ -162,15 +148,6 @@ public class CsvSerializer extends KSerializer {
     }
 
     /**
-     * Sets the line separator
-     *
-     * @param lineSeparator the line separator
-     */
-    public void setLineSeparator(final String lineSeparator) {
-        this.lineSeparator = lineSeparator;
-    }
-
-    /**
      * Sets the value delimiter
      *
      * @param valueDelimiter the value delimiter
@@ -229,7 +206,7 @@ public class CsvSerializer extends KSerializer {
         }
 
         // Add the line separator
-        writer.append(lineSeparator);
+        writeLineFeed(writer);
 
         return writer;
     }
@@ -260,20 +237,9 @@ public class CsvSerializer extends KSerializer {
         }
 
         // Add the line separator
-        writer.append(lineSeparator);
+        writeLineFeed(writer);
 
         return writer;
-    }
-
-    /**
-     * Writes a new line
-     *
-     * @param writer the writer
-     * @return Writer
-     * @throws IOException
-     */
-    public Writer writeNewLine(final Writer writer) throws IOException {
-        return writer.append(lineSeparator);
     }
 
     /**

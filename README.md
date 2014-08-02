@@ -16,10 +16,10 @@ Supported text formats :
 * XML (Extended Markup Language)
 
 
-Examples
---------
+Writing
+-------
 
-**Write to CSV**
+**Writing CSV**
 
 ```java
 // Create the serializer and the writer
@@ -43,7 +43,7 @@ writer.close();
 ```
 
 
-**Write to JSON**
+**Writing JSON**
 
 ```java
 // Create the serializer and the writer
@@ -58,7 +58,7 @@ writer.close();
 ```
 
 
-**Write to XML**
+**Writing XML**
 
 ```java
 // Create the serializer and the writer
@@ -74,3 +74,57 @@ xml.write(new Person("Linus", "Torvalds"), writer);
 // Close the writer
 writer.close();
 ```
+
+
+Filtering
+---------
+
+It is possible to filter the exported fields using a white list to define only the fields you want
+and/or a blacklist to define the fields you don't want. If you mix includes and excludes filters for the same class,
+only includes will be used.
+
+```java
+// Create the serializer and the writer
+final JsonSerializer json = new JsonSerializer();
+final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("batman.json")));
+
+Hero batman = new Hero();
+batman.setName("The Batman");
+
+Enemy jocker = new Enemy();
+jocker.setName("The Jocker");
+jocker.getEnemies().add(batman);
+
+batman.getEnemies().add(jocker);
+batman.getWeapons().add(new Weapon("Batarang"));
+
+// Only export these fields
+json.includeField("name", Hero.class);
+json.includeField("enemies", Hero.class);
+
+// Ignore the enemies of the enemies to avoid the StackOverflowException (infinite loop)
+json.excludeField("enemies", Enemy.class);
+
+// Serialize the object
+json.write(batman, writer);
+
+// Close the writer
+writer.close();
+```
+
+```java
+// Create the serializer and the writer
+final JsonSerializer json = new JsonSerializer();
+final BufferedWriter writer = new BufferedWriter(new FileWriter(new File("person.json")));
+
+
+// Ignore the friends list
+json.excludeField("friends", Person.class);
+
+// Serialize the object
+json.write(new Person("Douglas", "Crockford"), writer);
+
+// Close the writer
+writer.close();
+```
+

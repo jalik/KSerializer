@@ -32,19 +32,35 @@ public abstract class KSerializer {
     /**
      * The excluded fields
      */
-    private Map<Class<?>, Set<String>> excludeList = new HashMap<Class<?>, Set<String>>();
+    protected final Map<Class<?>, Set<String>> excludedFields = new HashMap<Class<?>, Set<String>>();
+    /**
+     * The excluded types
+     */
+    protected final Map<Class<?>, Set<Class<?>>> excludedTypes = new HashMap<Class<?>, Set<Class<?>>>();
+    /**
+     * The compress output option
+     */
+    protected boolean compressOutput = false;
     /**
      * The included fields
      */
-    private Map<Class<?>, Set<String>> includeList = new HashMap<Class<?>, Set<String>>();
+    protected final Map<Class<?>, Set<String>> includeFields = new HashMap<Class<?>, Set<String>>();
+    /**
+     * The included types
+     */
+    protected final Map<Class<?>, Set<Class<?>>> includedTypes = new HashMap<Class<?>, Set<Class<?>>>();
     /**
      * The indentation character
      */
-    private String indentationCharacter = "  ";
+    protected String indentationCharacter = "  ";
     /**
      * The indentation level
      */
-    private int indentationLevel = 0;
+    protected int indentationLevel = 0;
+    /**
+     * The line separator
+     */
+    protected String lineSeparator = System.getProperty("line.separator");
 
     /**
      * Default constructor
@@ -82,14 +98,27 @@ public abstract class KSerializer {
     /**
      * Adds the field to the exclusion list
      *
-     * @param cls
      * @param field
+     * @param cls
      */
-    public final void exclude(final Class<?> cls, final String field) {
-        if (!excludeList.containsKey(cls)) {
-            excludeList.put(cls, new HashSet<String>());
+    public final void excludeField(final String field, final Class<?> cls) {
+        if (!excludedFields.containsKey(cls)) {
+            excludedFields.put(cls, new HashSet<String>());
         }
-        excludeList.get(cls).add(field);
+        excludedFields.get(cls).add(field);
+    }
+
+    /**
+     * Adds the type to the exclusion list
+     *
+     * @param type
+     * @param cls
+     */
+    public final void excludeType(final Class<?> type, final Class<?> cls) {
+        if (!excludedTypes.containsKey(cls)) {
+            excludedTypes.put(cls, new HashSet<Class<?>>());
+        }
+        excludedTypes.get(cls).add(type);
     }
 
     /**
@@ -152,12 +181,21 @@ public abstract class KSerializer {
     }
 
     /**
-     * Returns the fields that are excluded when reading or writing
+     * Returns the excluded fields
      *
      * @return Map
      */
-    public final Map<Class<?>, Set<String>> getExcludeList() {
-        return excludeList;
+    public final Map<Class<?>, Set<String>> getExcludedFields() {
+        return excludedFields;
+    }
+
+    /**
+     * Returns the excluded types
+     *
+     * @return Map
+     */
+    public Map<Class<?>, Set<Class<?>>> getExcludedTypes() {
+        return excludedTypes;
     }
 
     /**
@@ -174,18 +212,13 @@ public abstract class KSerializer {
 
         for (final Field field : declaredFields) {
             // Check if the field is included
-            if (!includeList.isEmpty()
-                    && (!includeList.containsKey(cls)
-                    || includeList.get(cls).isEmpty()
-                    || !includeList.get(cls).contains(field.getName()))) {
+            if (includeFields.containsKey(cls) && (includeFields.get(cls).isEmpty()
+                    || !includeFields.get(cls).contains(field.getName()))) {
                 continue;
             }
 
             // Check if the field is excluded
-            if (!excludeList.isEmpty()
-                    && (excludeList.containsKey(cls)
-                    && !excludeList.get(cls).isEmpty()
-                    && excludeList.get(cls).contains(field.getName()))) {
+            if (excludedFields.containsKey(cls) && excludedFields.get(cls).contains(field.getName())) {
                 continue;
             }
 
@@ -206,12 +239,21 @@ public abstract class KSerializer {
     }
 
     /**
-     * Returns the fields that are included when reading or writing
+     * Returns the included fields
      *
      * @return Map
      */
-    public final Map<Class<?>, Set<String>> getIncludeList() {
-        return includeList;
+    public final Map<Class<?>, Set<String>> getIncludeFields() {
+        return includeFields;
+    }
+
+    /**
+     * Returns the included types
+     *
+     * @return Map
+     */
+    public Map<Class<?>, Set<Class<?>>> getIncludedTypes() {
+        return includedTypes;
     }
 
     /**
@@ -233,16 +275,38 @@ public abstract class KSerializer {
     }
 
     /**
+     * Returns the line separator
+     *
+     * @return String
+     */
+    public String getLineSeparator() {
+        return lineSeparator;
+    }
+
+    /**
      * Adds the field to the inclusion list
      *
-     * @param cls
      * @param field
+     * @param cls
      */
-    public final void include(final Class<?> cls, final String field) {
-        if (!includeList.containsKey(cls)) {
-            includeList.put(cls, new HashSet<String>());
+    public final void includeField(final String field, final Class<?> cls) {
+        if (!includeFields.containsKey(cls)) {
+            includeFields.put(cls, new HashSet<String>());
         }
-        includeList.get(cls).add(field);
+        includeFields.get(cls).add(field);
+    }
+
+    /**
+     * Adds the type to the inclusion list
+     *
+     * @param type
+     * @param cls
+     */
+    public final void includeType(final Class<?> type, final Class<?> cls) {
+        if (!includedTypes.containsKey(cls)) {
+            includedTypes.put(cls, new HashSet<Class<?>>());
+        }
+        includedTypes.get(cls).add(type);
     }
 
     /**
@@ -253,12 +317,39 @@ public abstract class KSerializer {
     }
 
     /**
+     * Returns the compress output option
+     *
+     * @return boolean
+     */
+    public boolean isCompressOutput() {
+        return compressOutput;
+    }
+
+    /**
+     * Sets the compress output option
+     *
+     * @param compressOutput
+     */
+    public void setCompressOutput(boolean compressOutput) {
+        this.compressOutput = compressOutput;
+    }
+
+    /**
      * Sets the indentation character
      *
      * @param indentationCharacter
      */
     public final void setIndentationCharacter(final String indentationCharacter) {
         this.indentationCharacter = indentationCharacter;
+    }
+
+    /**
+     * Sets the line separator
+     *
+     * @param lineSeparator the line separator
+     */
+    public void setLineSeparator(final String lineSeparator) {
+        this.lineSeparator = lineSeparator;
     }
 
     /**
@@ -275,12 +366,39 @@ public abstract class KSerializer {
      * Writes the indentation character
      *
      * @param writer
+     * @return Writer
      * @throws IOException
      */
     protected Writer writeIndentation(final Writer writer) throws IOException {
-        for (int i = 0; i < indentationLevel; i++) {
-            writer.write(indentationCharacter);
+        if (!compressOutput) {
+            for (int i = 0; i < indentationLevel; i++) {
+                writer.write(indentationCharacter);
+            }
         }
+        return writer;
+    }
+
+    /**
+     * Writes a new line character
+     *
+     * @param writer
+     * @return Writer
+     * @throws IOException
+     */
+    protected Writer writeLineFeed(final Writer writer) throws IOException {
+        writer.write("\n");
+        return writer;
+    }
+
+    /**
+     * Writes a single space character
+     *
+     * @param writer
+     * @return Writer
+     * @throws IOException
+     */
+    protected Writer writeSpace(final Writer writer) throws IOException {
+        writer.write(" ");
         return writer;
     }
 }
