@@ -59,6 +59,8 @@ public class JsonSerializer extends KSerializer {
     protected CharSequence escapeValue(String value) {
         if (value != null && value.indexOf('"') > 0) {
             value = value.replace("\"", "\\\"");
+            value = value.replace("\r", "\\r");
+            value = value.replace("\n", "\\n");
         }
         return value;
     }
@@ -83,6 +85,11 @@ public class JsonSerializer extends KSerializer {
 
         while (iterator.hasNext()) {
             final Object element = iterator.next();
+
+            // Check if the element should be ignored
+            if (element != null && ignoredObjects.contains(element)) {
+                continue;
+            }
 
             // Add the element
             writeIndentation(writer);
@@ -121,8 +128,15 @@ public class JsonSerializer extends KSerializer {
         final Iterator<?> iterator = map.keySet().iterator();
 
         while (iterator.hasNext()) {
-            // Add the field name
             final Object key = iterator.next();
+            final Object value = map.get(key);
+
+            // Check if the value should be ignored
+            if (value != null && ignoredObjects.contains(value)) {
+                continue;
+            }
+
+            // Add the field name
             writeIndentation(writer);
             writer.write("\"" + key + "\"");
             writeSpace(writer);
@@ -130,7 +144,7 @@ public class JsonSerializer extends KSerializer {
             writeSpace(writer);
 
             // Add the field value
-            write(map.get(key), writer);
+            write(value, writer);
 
             if (iterator.hasNext()) {
                 writer.append(',');
@@ -176,56 +190,50 @@ public class JsonSerializer extends KSerializer {
                 write(getCollectionFromObject(object), writer);
 
             } else {
-                writeObject(object, writer);
+                // Ignore this class next time
+                ignoredObjects.add(object);
+
+                // Open the object
+                writer.append('{');
+                writeLineFeed(writer);
+                increaseIndentation();
+
+                // Get the object fields
+                final Set<Field> fields = getFields(object.getClass());
+                final Iterator<Field> iterator = fields.iterator();
+
+                while (iterator.hasNext()) {
+                    final Field field = iterator.next();
+                    final Object value = field.get(object);
+
+                    // Check if the value should be ignored
+                    if (value != null && ignoredObjects.contains(value)) {
+                        continue;
+                    }
+
+                    // Add the field name
+                    writeIndentation(writer);
+                    writer.write("\"" + field.getName() + "\"");
+                    writeSpace(writer);
+                    writer.write(':');
+                    writeSpace(writer);
+
+                    // Add the field value
+                    write(value, writer);
+
+                    if (iterator.hasNext()) {
+                        writer.append(',');
+                    }
+                    writeLineFeed(writer);
+                }
+//                ignoredObjects.remove(object);
+
+                // Close the object
+                decreaseIndentation();
+                writeIndentation(writer);
+                writer.append('}');
             }
         }
-        return writer;
-    }
-
-    /**
-     * Writes an object
-     *
-     * @param object the object to write
-     * @param writer the writer
-     * @return Writer
-     * @throws IOException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     */
-    protected Writer writeObject(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        // Open the object
-        writer.append('{');
-        writeLineFeed(writer);
-        increaseIndentation();
-
-        // Get the object fields
-        final Set<Field> fields = getFields(object.getClass());
-        final Iterator<Field> iterator = fields.iterator();
-
-        while (iterator.hasNext()) {
-            final Field field = iterator.next();
-
-            // Add the field name
-            writeIndentation(writer);
-            writer.write("\"" + field.getName() + "\"");
-            writeSpace(writer);
-            writer.write(':');
-            writeSpace(writer);
-
-            // Add the field value
-            write(field.get(object), writer);
-
-            if (iterator.hasNext()) {
-                writer.append(',');
-            }
-            writeLineFeed(writer);
-        }
-
-        // Close the object
-        decreaseIndentation();
-        writeIndentation(writer);
-        writer.append('}');
-
         return writer;
     }
 

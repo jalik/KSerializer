@@ -29,6 +29,9 @@ import java.util.*;
  */
 public abstract class KSerializer {
 
+    protected Set<Class<?>> ignoredClasses = new HashSet<Class<?>>();
+    protected Set<Object> ignoredObjects = new HashSet<Object>();
+
     /**
      * The excluded fields
      */
@@ -211,6 +214,16 @@ public abstract class KSerializer {
         final Field[] declaredFields = cls.getDeclaredFields();
 
         for (final Field field : declaredFields) {
+            // Check if the field is ignored
+            if (ignoredClasses.contains(field.getType())) {
+                continue;
+            }
+
+            // Check if the field class is excluded
+            if (excludedTypes.containsKey(cls) && excludedTypes.get(cls).contains(field.getType())) {
+                continue;
+            }
+
             // Check if the field is included
             if (includeFields.containsKey(cls) && (includeFields.get(cls).isEmpty()
                     || !includeFields.get(cls).contains(field.getName()))) {

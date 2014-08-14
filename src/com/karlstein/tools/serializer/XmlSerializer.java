@@ -232,6 +232,11 @@ public class XmlSerializer extends KSerializer {
         writeLineFeed(writer);
 
         for (final Object object : collection) {
+            // Check if the object should be ignored
+            if (object != null && ignoredObjects.contains(object)) {
+                continue;
+            }
+
             // Add the element
             increaseIndentation();
             writeNode(object, writer);
@@ -263,8 +268,14 @@ public class XmlSerializer extends KSerializer {
         writeLineFeed(writer);
 
         for (final Object key : map.keySet()) {
-            // Add the element
             final Object element = map.get(key);
+
+            // Check if the element should be ignored
+            if (element != null && ignoredObjects.contains(element)) {
+                continue;
+            }
+
+            // Add the element
             increaseIndentation();
             writeNode(element, writer);
             decreaseIndentation();
@@ -382,6 +393,14 @@ public class XmlSerializer extends KSerializer {
 
             } else {
                 // TODO get the namespace
+
+                // Check if the object should be ignored
+                if (ignoredObjects.contains(object)) {
+                    return writer;
+                }
+
+                // Ignore this class next time
+                ignoredObjects.add(object);
 
                 // Open the node
                 writeIndentation(writer);

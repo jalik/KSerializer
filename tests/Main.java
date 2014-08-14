@@ -33,11 +33,11 @@ public class Main {
     public static void main(final String[] args) {
         try {
             // Define the output format
-            final String format = "csv";
+            final String format = "xml";
             final File file = new File("object." + format);
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
-            final BufferedReader fileReader = new BufferedReader(new FileReader(file));
             final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
+            final BufferedReader fileReader = new BufferedReader(new FileReader(file));
 
             writer.append("\n" + format + ":\n\n");
 
@@ -66,9 +66,22 @@ public class Main {
                 // This example serializes an object to a JSON file
                 final JsonSerializer json = new JsonSerializer();
 
+                ObjectExample objA = new ObjectExample();
+                ObjectExample objB = new ObjectExample();
+                objA._oRecursive = objB;
+                objA._oString = "A";
+                objA._oRecursiveList.add(objB);
+                objB._oRecursive = objA;
+                objB._oRecursiveList.add(objA);
+                objB._oString = "B";
+
+                json.includeField("_oRecursive", ObjectExample.class);
+                json.includeField("_oRecursiveList", ObjectExample.class);
+                json.includeField("_oString", ObjectExample.class);
+
                 // Serialize the object
-                json.write(new ObjectExample(), writer);
-                json.write(new ObjectExample(), fileWriter);
+                json.write(objA, writer);
+                json.write(objA, fileWriter);
                 fileWriter.close();
             }
 
@@ -76,9 +89,18 @@ public class Main {
                 // This example serializes an object to a XML file
                 final XmlSerializer xml = new XmlSerializer();
 
+                ObjectExample objA = new ObjectExample();
+                ObjectExample objB = new ObjectExample();
+                objA._oRecursive = objB;
+                objA._oString = "A";
+                objA._oRecursiveList.add(objB);
+                objB._oRecursive = objA;
+                objB._oRecursiveList.add(objA);
+                objB._oString = "B";
+
                 // Serialize the object
-                xml.write(new ObjectExample(), writer);
-                xml.write(new ObjectExample(), fileWriter);
+                xml.write(objA, writer);
+                xml.write(objA, fileWriter);
                 fileWriter.close();
             }
 

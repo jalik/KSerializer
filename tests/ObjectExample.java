@@ -31,6 +31,8 @@ public class ObjectExample {
     public Map<Object, Object> _oMap = new HashMap<Object, Object>();
     public String _oNull;
     public PrimitiveExample _oObject = new PrimitiveExample();
+    public ObjectExample _oRecursive;
+    public List<ObjectExample> _oRecursiveList = new ArrayList<ObjectExample>();
     public Short _oShort = 8;
     public String _oString = "My \r\n<\"String\"> to escape";
     public Set<Object> _oSet = new HashSet<Object>();
