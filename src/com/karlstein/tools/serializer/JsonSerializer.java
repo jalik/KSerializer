@@ -19,6 +19,7 @@ package com.karlstein.tools.serializer;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -42,12 +43,14 @@ public class JsonSerializer extends KSerializer {
 
         // Convert these field types only
         return super.checkField(field) && (cls.isPrimitive()
-                || Number.class.isAssignableFrom(cls)
-                || cls.equals(Boolean.class)
+                || cls.isEnum()
                 || cls.equals(String.class)
-                || cls.equals(Date.class)
                 || cls.equals(Character.class)
-                || Object.class.isAssignableFrom(cls));
+                || cls.equals(Boolean.class)
+                || Number.class.isAssignableFrom(cls)
+                || Date.class.isAssignableFrom(cls)
+                || Object.class.isAssignableFrom(cls)
+        );
     }
 
     /**
@@ -173,7 +176,13 @@ public class JsonSerializer extends KSerializer {
         } else {
             final Class<?> cls = object.getClass();
 
-            if (cls.equals(String.class) || cls.equals(Date.class) || cls.isEnum() || cls.equals(Character.class) || cls.equals(Character.TYPE)) {
+            if (Date.class.isAssignableFrom(cls)) {
+                SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.SXXX");
+                writer.append('"');
+                writer.append(escapeValue(df.format(object)));
+                writer.append('"');
+
+            } else if (cls.equals(String.class) || cls.isEnum() || cls.equals(Character.class) || cls.equals(Character.TYPE)) {
                 // Escape quotes when the object is a string
                 writer.write("\"" + escapeValue(String.valueOf(object)) + "\"");
 
@@ -226,7 +235,7 @@ public class JsonSerializer extends KSerializer {
                     }
                     writeLineFeed(writer);
                 }
-//                ignoredObjects.remove(object);
+                ignoredObjects.remove(object);
 
                 // Close the object
                 decreaseIndentation();

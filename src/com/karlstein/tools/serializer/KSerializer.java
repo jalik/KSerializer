@@ -213,33 +213,37 @@ public abstract class KSerializer {
         final Class<?> parent = cls.getSuperclass();
         final Field[] declaredFields = cls.getDeclaredFields();
 
-        for (final Field field : declaredFields) {
-            // Check if the field is ignored
-            if (ignoredClasses.contains(field.getType())) {
-                continue;
-            }
+        if (!ignoredClasses.contains(cls)) {
+            for (final Field field : declaredFields) {
+                final Class<?> fieldType = field.getType();
 
-            // Check if the field class is excluded
-            if (excludedTypes.containsKey(cls) && excludedTypes.get(cls).contains(field.getType())) {
-                continue;
-            }
+                // Check if the field is ignored
+                if (ignoredClasses.contains(fieldType)) {
+                    continue;
+                }
 
-            // Check if the field is included
-            if (includeFields.containsKey(cls) && (includeFields.get(cls).isEmpty()
-                    || !includeFields.get(cls).contains(field.getName()))) {
-                continue;
-            }
+                // Check if the field is included
+                if (includeFields.containsKey(cls) && (includeFields.get(cls).isEmpty()
+                        || !includeFields.get(cls).contains(field.getName()))) {
+                    continue;
+                }
 
-            // Check if the field is excluded
-            if (excludedFields.containsKey(cls) && excludedFields.get(cls).contains(field.getName())) {
-                continue;
-            }
+                // Check if the field class is excluded
+                if (excludedTypes.containsKey(cls) && excludedTypes.get(cls).contains(fieldType)) {
+                    continue;
+                }
 
-            if (checkField(field)) {
-                // If the field can be converted,
-                // then add it to the list
-                field.setAccessible(true);
-                fields.add(field);
+                // Check if the field is excluded
+                if (excludedFields.containsKey(cls) && excludedFields.get(cls).contains(field.getName())) {
+                    continue;
+                }
+
+                if (checkField(field)) {
+                    // If the field can be converted,
+                    // then add it to the list
+                    field.setAccessible(true);
+                    fields.add(field);
+                }
             }
         }
 

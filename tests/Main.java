@@ -33,7 +33,7 @@ public class Main {
     public static void main(final String[] args) {
         try {
             // Define the output format
-            final String format = "xml";
+            final String format = "json";
             final File file = new File("object." + format);
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
             final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
@@ -75,9 +75,9 @@ public class Main {
                 objB._oRecursiveList.add(objA);
                 objB._oString = "B";
 
-                json.includeField("_oRecursive", ObjectExample.class);
-                json.includeField("_oRecursiveList", ObjectExample.class);
-                json.includeField("_oString", ObjectExample.class);
+//                json.includeField("_oRecursive", ObjectExample.class);
+//                json.includeField("_oRecursiveList", ObjectExample.class);
+//                json.includeField("_oString", ObjectExample.class);
 
                 // Serialize the object
                 json.write(objA, writer);

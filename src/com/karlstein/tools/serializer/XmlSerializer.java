@@ -19,6 +19,7 @@ package com.karlstein.tools.serializer;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -181,13 +182,12 @@ public class XmlSerializer extends KSerializer {
         final Class<?> cls = object.getClass();
 
         return (cls.isPrimitive()
+                || cls.isEnum()
                 || cls.equals(String.class)
                 || cls.equals(Character.class)
-                || cls.equals(Character.TYPE)
                 || cls.equals(Boolean.class)
-                || cls.equals(Date.class)
-                || cls.isEnum()
                 || Number.class.isInstance(object)
+                || Date.class.isAssignableFrom(cls)
         );
     }
 
@@ -421,8 +421,12 @@ public class XmlSerializer extends KSerializer {
                 writer.append(">");
 
                 if (isValue(object)) {
-                    writer.append(escapeValue(String.valueOf(object)));
-
+                    if (Date.class.isAssignableFrom(cls)) {
+                        SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.SXXX");
+                        writer.append(escapeValue(df.format(object)));
+                    } else {
+                        writer.append(escapeValue(String.valueOf(object)));
+                    }
                 } else {
                     writeLineFeed(writer);
 

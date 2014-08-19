@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -61,11 +62,13 @@ public class CsvSerializer extends KSerializer {
 
         // Convert these field types only
         return super.checkField(field) && (cls.isPrimitive()
-                || Number.class.isAssignableFrom(cls)
-                || cls.equals(Boolean.class)
+                || cls.isEnum()
                 || cls.equals(String.class)
-                || cls.equals(Date.class)
-                || cls.equals(Character.class));
+                || cls.equals(Character.class)
+                || cls.equals(Boolean.class)
+                || Number.class.isAssignableFrom(cls)
+                || Date.class.isAssignableFrom(cls)
+        );
     }
 
     /**
@@ -76,11 +79,9 @@ public class CsvSerializer extends KSerializer {
      */
     protected CharSequence escapeValue(String value) {
         if (value != null) {
-            int pos;
-
-            while ((pos = value.indexOf(valueDelimiter)) >= 0) {
-                value = value.substring(0, pos) + valueDelimiter + value.substring(pos);
-            }
+            value = value.replace("\r", "\\r");
+            value = value.replace("\n", "\\n");
+            value = value.replace(String.valueOf(valueDelimiter), String.valueOf(new char[]{valueDelimiter, valueDelimiter}));
         }
         return value;
     }
@@ -176,38 +177,52 @@ public class CsvSerializer extends KSerializer {
      * @throws IllegalAccessException
      */
     public Writer write(final Collection<?> objects, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        for (final Object object : objects) {
-            write(object, writer);
+        if (objects != null) {
+            for (final Object object : objects) {
+                write(object, writer);
+            }
         }
         return writer;
     }
 
     @Override
     public Writer write(final Object object, final Writer writer) throws IOException, IllegalArgumentException, IllegalAccessException {
-        final Class<?> type = object.getClass();
+        if (object != null && !ignoredObjects.contains(object)) {
+            final Class<?> type = object.getClass();
 
-        if (type.isArray()) {
-            write(getCollectionFromObject(object), writer);
+            // Ignore this class next time
+            ignoredObjects.add(object);
 
-        } else {
-            final Set<Field> fields = getFields(type);
-            final Iterator<Field> iterator = fields.iterator();
+            if (type.isArray()) {
+                write(getCollectionFromObject(object), writer);
 
-            while (iterator.hasNext()) {
-                final Field field = iterator.next();
+            } else {
+                final Set<Field> fields = getFields(type);
+                final Iterator<Field> iterator = fields.iterator();
 
-                // Add the field value
-                writeValue(field.get(object), writer);
+                while (iterator.hasNext()) {
+                    final Field field = iterator.next();
+                    final Object value = field.get(object);
 
-                if (iterator.hasNext()) {
-                    writer.append(valueSeparator);
+                    // Check if the value should be ignored
+                    if (value != null && ignoredObjects.contains(value)) {
+                        continue;
+                    }
+
+                    // Add the field value
+                    writeValue(value, writer);
+
+                    if (iterator.hasNext()) {
+                        writer.append(valueSeparator);
+                    }
                 }
             }
+
+            ignoredObjects.remove(object);
+
+            // Add the line separator
+            writeLineFeed(writer);
         }
-
-        // Add the line separator
-        writeLineFeed(writer);
-
         return writer;
     }
 
@@ -254,10 +269,17 @@ public class CsvSerializer extends KSerializer {
         if (value != null) {
             final Class<?> cls = value.getClass();
 
-            if (cls.equals(String.class) || cls.equals(Date.class)) {
+            if (Date.class.isAssignableFrom(cls)) {
+                SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.SXXX");
+                writer.append(valueDelimiter);
+                writer.append(escapeValue(df.format(value)));
+                writer.append(valueDelimiter);
+
+            } else if (cls.equals(String.class)) {
                 writer.append(valueDelimiter);
                 writer.append(escapeValue(String.valueOf(value)));
                 writer.append(valueDelimiter);
+
             } else {
                 writer.append(escapeValue(String.valueOf(value)));
             }
