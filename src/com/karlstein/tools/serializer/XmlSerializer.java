@@ -17,6 +17,7 @@
 package com.karlstein.tools.serializer;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -199,6 +200,11 @@ public class XmlSerializer extends KSerializer {
      */
     public String normalize(final String name) {
         return name.replaceAll("[^A-Za-z0-9]", "");
+    }
+
+    @Override
+    public <T> T read(Class<T> cls, Reader reader) {
+        return null;
     }
 
     /**

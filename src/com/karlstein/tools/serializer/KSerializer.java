@@ -17,6 +17,8 @@
 package com.karlstein.tools.serializer;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -215,10 +217,10 @@ public abstract class KSerializer {
 
         if (!ignoredClasses.contains(cls)) {
             for (final Field field : declaredFields) {
-                final Class<?> fieldType = field.getType();
+                final Class<?> type = field.getType();
 
                 // Check if the field is ignored
-                if (ignoredClasses.contains(fieldType)) {
+                if (ignoredClasses.contains(type)) {
                     continue;
                 }
 
@@ -229,7 +231,7 @@ public abstract class KSerializer {
                 }
 
                 // Check if the field class is excluded
-                if (excludedTypes.containsKey(cls) && excludedTypes.get(cls).contains(fieldType)) {
+                if (excludedTypes.containsKey(cls) && excludedTypes.get(cls).contains(type)) {
                     continue;
                 }
 
@@ -340,6 +342,28 @@ public abstract class KSerializer {
      */
     public boolean isCompressOutput() {
         return compressOutput;
+    }
+
+    /**
+     * Returns an object from the reader
+     *
+     * @param cls
+     * @param reader
+     * @param <T>
+     * @return Object
+     */
+    public abstract <T> T read(Class<T> cls, Reader reader);
+
+    /**
+     * Returns an object from the string
+     *
+     * @param cls
+     * @param text
+     * @param <T>
+     * @return T
+     */
+    public <T> T read(Class<T> cls, String text) {
+        return read(cls, new StringReader(text));
     }
 
     /**

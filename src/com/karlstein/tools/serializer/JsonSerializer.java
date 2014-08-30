@@ -16,7 +16,11 @@
 
 package com.karlstein.tools.serializer;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -66,6 +70,14 @@ public class JsonSerializer extends KSerializer {
             value = value.replace("\n", "\\n");
         }
         return value;
+    }
+
+    @Override
+    public <T> T read(Class<T> cls, Reader reader) {
+        Gson gson = new Gson();
+        GsonBuilder builder = new GsonBuilder();
+        builder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        return builder.create().fromJson(reader, cls);
     }
 
     /**
@@ -177,7 +189,7 @@ public class JsonSerializer extends KSerializer {
             final Class<?> cls = object.getClass();
 
             if (Date.class.isAssignableFrom(cls)) {
-                SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.SXXX");
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
                 writer.append('"');
                 writer.append(escapeValue(df.format(object)));
                 writer.append('"');

@@ -58,22 +58,16 @@ public class Main {
                 fileWriter.close();
 
                 // Read the objects
-                final Collection<ObjectExample> input = csv.read(fileReader, ObjectExample.class);
-                System.out.println("Read: " + input);
+//                final Collection<ObjectExample> input = csv.read(fileReader, ObjectExample.class);
+//                System.out.println("Read: " + input);
             }
 
             if (format.equals("json")) {
                 // This example serializes an object to a JSON file
                 final JsonSerializer json = new JsonSerializer();
 
-                ObjectExample objA = new ObjectExample();
+                PrimitiveExample objA = new PrimitiveExample();
                 ObjectExample objB = new ObjectExample();
-                objA._oRecursive = objB;
-                objA._oString = "A";
-                objA._oRecursiveList.add(objB);
-                objB._oRecursive = objA;
-                objB._oRecursiveList.add(objA);
-                objB._oString = "B";
 
 //                json.includeField("_oRecursive", ObjectExample.class);
 //                json.includeField("_oRecursiveList", ObjectExample.class);

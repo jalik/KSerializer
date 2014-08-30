@@ -16,13 +16,15 @@
 
 package com.karlstein.tools.serializer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This class is used to read/write CSV data
@@ -104,48 +106,9 @@ public class CsvSerializer extends KSerializer {
         return valueSeparator;
     }
 
-    /**
-     * Returns the objects from the reader
-     *
-     * @param data
-     * @param cls
-     * @param <T>
-     * @return Collection
-     * @throws IOException
-     */
-    public <T> Collection<T> read(final Reader data, final Class<T> cls) throws IOException {
-        final BufferedReader reader = new BufferedReader(data);
-        final Collection<T> objects = new ArrayList<T>(10);
-        int charCode;
-
-        do {
-            // Read the character
-            charCode = data.read();
-
-            if (charCode == valueDelimiter) {
-
-            }
-
-        } while (charCode != -1);
-
-        return objects;
-    }
-
-    /**
-     * Returns an instance of the class using the values
-     *
-     * @param data
-     * @param cls
-     * @param <T>
-     * @return Object
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     */
-    protected <T> T read(final char[] data, final Class<T> cls) throws IllegalAccessException, InstantiationException {
-        final Set<Field> fields = getFields(cls);
-        T object = null;
-
-        return object;
+    @Override
+    public <T> T read(Class<T> cls, Reader reader) {
+        return null;
     }
 
     /**
